@@ -1,0 +1,37 @@
+#!/usr/bin/python
+
+import urllib.request
+import json
+import datetime
+
+
+url = 'http://api.aladhan.com/timingsByCity?city=Cumberland&country=MD&method=2'
+with urllib.request.urlopen(url) as response:
+    html = response.read()
+
+timings = json.loads(html)['data']['timings']
+del timings['Sunset']
+del timings['Imsak']
+del timings['Midnight']
+current_time = datetime.datetime.now().time()
+wanted_time_format = "%I:%M %p"
+convert_from = "%H:%M"
+
+for name, time in timings.items():
+    datetimed = datetime.datetime.strptime(timings[name], convert_from).time()
+
+    if current_time >= datetimed:
+        current_prayer = [name, time]
+
+    if current_time <= datetimed:
+        next_prayer = [name, time]
+        break
+next_prayer[1] = datetime.datetime.strptime(
+    next_prayer[1], convert_from).time().strftime(wanted_time_format)
+current_prayer[1] = datetime.datetime.strptime(
+    current_prayer[1], convert_from).time().strftime(wanted_time_format)
+
+print("{0} {1} : {2} {3}".format(current_prayer[0],
+                                 current_prayer[1],
+                                 next_prayer[0],
+                                 next_prayer[1]))
