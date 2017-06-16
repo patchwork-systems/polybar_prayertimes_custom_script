@@ -1,4 +1,5 @@
 #Check Athan for Polybar
+
 Check Athan for Polybar is a simple custom script for getting the current and
 next Islamic prayer times and displaying them in
 [Polybar](https://github.com/jaagr/polybar).
