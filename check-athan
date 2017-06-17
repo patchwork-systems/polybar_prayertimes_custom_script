@@ -5,31 +5,34 @@ import json
 import datetime
 
 
+def convert_time(time, convert_from, convert_to):
+    return datetime.datetime.strptime(time, convert_from).time().strftime(convert_to)
+
 url = 'http://api.aladhan.com/timingsByCity?city=Cumberland&country=MD&method=2'
 with urllib.request.urlopen(url) as response:
     html = response.read()
 
+convert_from = "%H:%M"
+wanted_time_format = "%I:%M %p"
 timings = json.loads(html)['data']['timings']
 del timings['Sunset']
 del timings['Imsak']
 del timings['Midnight']
 current_time = datetime.datetime.now().time()
-wanted_time_format = "%I:%M %p"
-convert_from = "%H:%M"
 
 for name, time in timings.items():
     datetimed = datetime.datetime.strptime(timings[name], convert_from).time()
 
     if current_time >= datetimed:
-        current_prayer = [name, time]
+        current_prayer = [name, convert_time(
+            time, convert_from, wanted_time_format)]
+    else:
+        current_prayer = ['Isha', 'Anytime']
 
     if current_time <= datetimed:
-        next_prayer = [name, time]
+        next_prayer = [name, convert_time(
+            time, convert_from, wanted_time_format)]
         break
-next_prayer[1] = datetime.datetime.strptime(
-    next_prayer[1], convert_from).time().strftime(wanted_time_format)
-current_prayer[1] = datetime.datetime.strptime(
-    current_prayer[1], convert_from).time().strftime(wanted_time_format)
 
 print("{0} {1} : {2} {3}".format(current_prayer[0],
                                  current_prayer[1],
